@@ -41,5 +41,12 @@ $app->get('/(:page)', function ($page = FALSE) use ($app) {
 })->conditions(array('page' => '\d+'))->name('home');
 
 
+$app->get('/page/:alias', function ($alias) use ($app) {
+
+    $o = \Controller\AController::getInstance('page'); //PageController
+    $o->execute(array('alias' => $alias));
+})->name('page');
+
+
 
 $app->run();
