@@ -1,0 +1,14 @@
+{
+    "name": "ichi/slim2_lesson",
+    "type": "project",
+    "require": {
+        "slim/slim": "~2.0"
+    },
+    "license": "mit",
+    "authors": [
+        {
+            "name": "Ichi",
+            "email": "ichi-perm@yandex.ru"
+        }
+    ]
+}
