@@ -47,6 +47,12 @@ $app->get('/page/:alias', function ($alias) use ($app) {
 	$o->execute(array('alias' => $alias));
 })->name('page');
 
+$app->get('/item/:alias', function ($alias) use ($app) {
+
+	$o = \Controller\AController::getInstance('item'); //ItemController
+	$o->execute(array('alias' => $alias));
+})->name('item');
+
 $app->get('/category/:alias(/:page)', function ($alias, $page = FALSE) use ($app) {
 
 	$o = \Controller\AController::getInstance('category'); //CategoryController

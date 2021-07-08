@@ -30,6 +30,32 @@ class Model
 		return $result;
 	}
 
+	public function getItems($page, $alias = FALSE)
+	{
+
+		$where = $alias ? "`" . PREF . "content`.`id_cat` = (SELECT id FROM `" . PREF . "categories` WHERE `alias` = '" . $alias . "')" : FALSE;
+
+		/*$sql = "SELECT `".PREF."content`.`id`,`title`,`introtext`,`images`,`".PREF."categories`.`name` AS `category`,`".PREF."categories`.`alias` AS `alias_cat`,`".PREF."content`.`alias`,`date` FROM `".PREF."content` LEFT JOIN `".PREF."categories` ON `".PREF."categories`.`id` = `".PREF."content`.`id_cat`
+		WHERE "`".PREF."content`.`id_cat` = (SELECT id FROM `".PREF."categories` WHERE `alias` = '".$alias."')	
+		";*/
+
+		$pager = new \Libraries\Pager(
+			$page,
+			"`" . PREF . "content`.`id`,`title`,`introtext`,`images`,`" . PREF . "categories`.`name` AS `category`,`" . PREF . "categories`.`alias` AS `alias_cat`,`" . PREF . "content`.`alias`,`date`",
+			"`" . PREF . "content`",
+			$where,
+			" LEFT JOIN `" . PREF . "categories` ON `" . PREF . "categories`.`id` = `" . PREF . "content`.`id_cat`",
+			QUANTITY,
+			QUANTITY_LINKS,
+			$this->driver
+		);
+		$result = array();
+		$result['items'] = $pager->get_posts();
+		$result['navigation'] = $pager->get_navigation();
+
+		return $result;
+	}
+
 	public function getCategories()
 	{
 		$sql = "SELECT `id`,`name`,`alias`
