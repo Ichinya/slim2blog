@@ -39,8 +39,9 @@ spl_autoload_register('my_autoload');
 					\Libraries\Aclclass::getInstance()
 										));	*/
 
-
-
+\Slim\Route::setDefaultConditions(array(
+	'page' => '\d+'
+));
 
 
 
@@ -48,7 +49,7 @@ $app->get('/(:page)', function ($page = FALSE) use ($app) {
 
 	$o = \Controller\AController::getInstance('index'); //IndexController
 	$o->execute(array('page' => $page));
-})->conditions(array('page' => '\d+'))->name('home');
+})->name('home');
 
 
 $app->get('/page/:alias', function ($alias) use ($app) {
@@ -99,8 +100,22 @@ $app->group('/admin', $middle, function () use ($app) {
 	//  /admin(/:page)
 	$app->get('(/:page)', function ($page = 1) {
 		$o = \Controller\AController::getInstance('admin'); //AdminController
-		$o->execute();
-	})->conditions(array('page' => '\d+'))->name('aitems');
+		$o->execute(array('page' => $page));
+	})->name('aitems');
+
+	//   /admin/item
+	$app->group('/item', function () use ($app) {
+
+		$app->map('/edit/:id', function ($id) {
+			$o = \Controller\AController::getInstance('aitemedit'); //AitemeditController
+			$o->execute();
+		})->via('GET', 'POST', 'DELETE')->name('aitem_edit');
+
+		$app->map('/add', function () {
+			$o = \Controller\AController::getInstance('aitemadd'); //AitemeditController
+			$o->execute();
+		})->via('GET', 'POST')->name('aitem_add');
+	});
 });
 
 
