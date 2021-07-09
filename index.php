@@ -52,6 +52,12 @@ $app->get('/(:page)', function ($page = FALSE) use ($app) {
 	$o->execute(array('page' => $page));
 })->name('home');
 
+$app->get('/contacts', function () use ($app) {
+
+	$o = \Controller\AController::getInstance('contacts'); //IndexController
+	$o->execute(array('page' => $page));
+})->name('contacts');
+
 
 $app->get('/page/:alias', function ($alias) use ($app) {
 

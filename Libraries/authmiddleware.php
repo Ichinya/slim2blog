@@ -44,6 +44,7 @@ class AuthMiddleware extends \Slim\Middleware
 		//
 		$this->acl->setAllow('admin', '/admin(/:page)', array('GET', 'POST'));
 		$this->acl->setAllow('admin', '/admin/item/add', array('GET', 'POST'));
+		$this->acl->setAllow('admin', '/admin/item/edit/:id', array('GET', 'POST', 'DELETE'));
 		//$this->acl->setAllow('admin','/admin/item/add',array('GET','POST'));
 		//$this->acl->setAllow('user','/admin',array('GET'));
 
