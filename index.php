@@ -1,5 +1,5 @@
 <?php
-define('_Sdef',TRUE);
+define('_Sdef', TRUE);
 
 session_start();
 
@@ -9,76 +9,85 @@ require 'config.php';
 \Slim\Slim::registerAutoloader();
 
 $app = new \Slim\Slim(array(
-					'templates.path'=> __DIR__.'/templates',
-					'debug'=>TRUE
-					));
+	'templates.path' => __DIR__ . '/templates',
+	'debug' => TRUE
+));
 
-function my_autoload($className) {
+function my_autoload($className)
+{
 	$baseDir = __DIR__;
-	
-	$fileName = $baseDir.DIRECTORY_SEPARATOR;
+
+	$fileName = $baseDir . DIRECTORY_SEPARATOR;
 	$namespace = '';
-	if($lastNsPos = strripos($className,'\\')) {
-		$namespace = substr($className,0,$lastNsPos);
-		$className = substr($className,$lastNsPos+1);
-		$fileName .= str_replace('\\',DIRECTORY_SEPARATOR,$namespace).DIRECTORY_SEPARATOR;
+	if ($lastNsPos = strripos($className, '\\')) {
+		$namespace = substr($className, 0, $lastNsPos);
+		$className = substr($className, $lastNsPos + 1);
+		$fileName .= str_replace('\\', DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
 	}
-	
-	$fileName .= strtolower($className).'.php';
-	if(file_exists($fileName)) {
+
+	$fileName .= strtolower($className) . '.php';
+	if (file_exists($fileName)) {
 		require $fileName;
 	}
 }
 
-spl_autoload_register('my_autoload');				
-					
+spl_autoload_register('my_autoload');
 
-$app->get('/(:page)',function ($page = FALSE) use ($app) {
-	
-	$o = \Controller\AController::getInstance('index');//IndexController
+$app->add(new \Libraries\AuthMiddleware(
+	array('routeName' => '/admin'),
+	\Libraries\Authclass::getInstance(new \Model\AModel)
+	//new \Libraries\Aclclass
+));
+
+
+$app->get('/(:page)', function ($page = FALSE) use ($app) {
+
+	$o = \Controller\AController::getInstance('index'); //IndexController
 	$o->execute(array('page' => $page));
+})->conditions(array('page' => '\d+'))->name('home');
 
-})->conditions(array('page' => '\d+'))->name('home');	
 
+$app->get('/page/:alias', function ($alias) use ($app) {
 
-$app->get('/page/:alias',function ($alias) use ($app) {
-	
-	$o = \Controller\AController::getInstance('page');//PageController
+	$o = \Controller\AController::getInstance('page'); //PageController
 	$o->execute(array('alias' => $alias));
+})->name('page');
 
-})->name('page');	
+$app->get('/item/:alias', function ($alias) use ($app) {
 
-$app->get('/item/:alias',function ($alias) use ($app) {
-	
-	$o = \Controller\AController::getInstance('item');//ItemController
+	$o = \Controller\AController::getInstance('item'); //ItemController
 	$o->execute(array('alias' => $alias));
-
 })->name('item');
 
-$app->get('/category/:alias(/:page)',function ($alias,$page = FALSE) use ($app) {
-	
-	$o = \Controller\AController::getInstance('category');//CategoryController
-	$o->execute(array('alias' => $alias,'page'=>$page));
+$app->get('/category/:alias(/:page)', function ($alias, $page = FALSE) use ($app) {
 
-})->name('category');	
+	$o = \Controller\AController::getInstance('category'); //CategoryController
+	$o->execute(array('alias' => $alias, 'page' => $page));
+})->name('category');
 
-$app->get('/new/:alias',function ($alias) use ($app) {
-	
-	$o = \Controller\AController::getInstance('news');//NewsController
+$app->get('/new/:alias', function ($alias) use ($app) {
+
+	$o = \Controller\AController::getInstance('news'); //NewsController
 	$o->execute(array('alias' => $alias));
-
 })->name('news');
 
 //GET
 //POST
 $app->map('/login', function () {
-	
-	$o = \Controller\AController::getInstance('login');//NewsController
+
+	$o = \Controller\AController::getInstance('login'); //LoginController
 	$o->execute();
-	
-})->via('GET','POST')->name('login');
+})->via('GET', 'POST')->name('login');
 
 
 
-$app->run();					
+$app->get('/admin', function () use ($app) {
 
+	$o = \Controller\AController::getInstance('admin'); //AdminController
+	$o->execute();
+})->name('admin');
+
+
+
+
+$app->run();
