@@ -9,7 +9,7 @@ class AuthMiddleware extends \Slim\Middleware
 
 	protected $config;
 
-	public function __construct($settings = array(), \Libraries\Authclass $auth)
+	public function __construct($settings = array(), \Libraries\Authclass $auth, \Libraries\Aclclass $acl)
 	{
 		$defaults = array(
 			'routeName' => '/admin'
@@ -19,6 +19,7 @@ class AuthMiddleware extends \Slim\Middleware
 
 		$this->app = \Slim\Slim::getInstance();
 		$this->auth = $auth;
+		$this->acl = $acl;
 	}
 
 	public function call()
@@ -34,11 +35,26 @@ class AuthMiddleware extends \Slim\Middleware
 
 		$resource = $this->app->router->getCurrentRoute()->getPattern();
 
-		if ($resource == $this->config['routeName']) {
-			if (!$user = $this->auth->isUserLogin()) {
-				$this->app->flash('error', 'Доступ запрещен');
-				$this->app->redirect($this->app->urlFor('login'));
-			}
+		//if($resource == $this->config['routeName'] ) {
+		if (!$user = $this->auth->isUserLogin()) {
+			$this->app->flash('error', 'Доступ запрещен');
+			$this->app->redirect($this->app->urlFor('login'));
 		}
+
+		//
+		$this->acl->setAllow('admin', '/admin(/:page)', array('GET', 'POST'));
+		//$this->acl->setAllow('admin','/admin/item/add',array('GET','POST'));
+		//$this->acl->setAllow('user','/admin',array('GET'));
+
+		///
+
+		if (!$this->acl->check($resource, $user[0]['role'], $this->app->request->getMethod())) {
+			$this->app->flash('error', 'Нет прав доступа');
+			$this->app->redirect($this->app->urlFor('home'));
+		}
+
+		//}
+
+		return TRUE;
 	}
 }

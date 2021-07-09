@@ -33,11 +33,15 @@ function my_autoload($className)
 
 spl_autoload_register('my_autoload');
 
-$app->add(new \Libraries\AuthMiddleware(
-	array('routeName' => '/admin'),
-	\Libraries\Authclass::getInstance(new \Model\AModel)
-	//new \Libraries\Aclclass
-));
+/*$app->add(new \Libraries\AuthMiddleware(
+					array('routeName'=>'/admin'),
+					\Libraries\Authclass::getInstance(new \Model\AModel),
+					\Libraries\Aclclass::getInstance()
+										));	*/
+
+
+
+
 
 
 $app->get('/(:page)', function ($page = FALSE) use ($app) {
@@ -75,17 +79,29 @@ $app->get('/new/:alias', function ($alias) use ($app) {
 //POST
 $app->map('/login', function () {
 
-	$o = \Controller\AController::getInstance('login'); //LoginController
+	$o = \Controller\AController::getInstance('login'); //NewsController
 	$o->execute();
 })->via('GET', 'POST')->name('login');
 
 
+$middle = function () {
+	$obj = new \Libraries\AuthMiddleware(
+		array('routeName' => '/admin'),
+		\Libraries\Authclass::getInstance(new \Model\AModel),
+		\Libraries\Aclclass::getInstance()
+	);
+	return $obj->onBeforeDispatch();
+};
 
-$app->get('/admin', function () use ($app) {
 
-	$o = \Controller\AController::getInstance('admin'); //AdminController
-	$o->execute();
-})->name('admin');
+$app->group('/admin', $middle, function () use ($app) {
+
+	//  /admin(/:page)
+	$app->get('(/:page)', function ($page = 1) {
+		$o = \Controller\AController::getInstance('admin'); //AdminController
+		$o->execute();
+	})->conditions(array('page' => '\d+'))->name('aitems');
+});
 
 
 
