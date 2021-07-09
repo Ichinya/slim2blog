@@ -40,7 +40,8 @@ spl_autoload_register('my_autoload');
 										));	*/
 
 \Slim\Route::setDefaultConditions(array(
-	'page' => '\d+'
+	'page' => '\d+',
+	'id' => '\d+',
 ));
 
 
@@ -108,7 +109,7 @@ $app->group('/admin', $middle, function () use ($app) {
 
 		$app->map('/edit/:id', function ($id) {
 			$o = \Controller\AController::getInstance('aitemedit'); //AitemeditController
-			$o->execute();
+			$o->execute(array('id' => $id));
 		})->via('GET', 'POST', 'DELETE')->name('aitem_edit');
 
 		$app->map('/add', function () {

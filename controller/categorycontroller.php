@@ -3,7 +3,7 @@ namespace Controller;
 
 defined('_Sdef') or exit();
 
-class IndexController extends ADisplayController {
+class CategoryController extends ADisplayController {
 	
 	protected $page;
 	
@@ -12,6 +12,11 @@ class IndexController extends ADisplayController {
 		$page = $param['page'];
 		
 		$this->page = $page ? $page : 1;
+		$this->alias = $param['alias'];
+		
+		if(empty($this->alias)) {
+			exit();
+		}
 		
 		return $this->display();
 	}
@@ -19,7 +24,9 @@ class IndexController extends ADisplayController {
 	
 	protected function display() {
 		
-		$items = $this->model->getItems($this->page);
+		$items = $this->model->getItems($this->page,$this->alias);
+		
+		$category = $this->model->getCategory($this->alias);
 		
 		//$row = array();
 		foreach($items['items'] as $item) {
@@ -29,9 +36,9 @@ class IndexController extends ADisplayController {
 		
 		$items['items'] = $row;
 		
-		$this->title .= 'HOME';
-		$this->keywords = 'Главная';
-		$this->description = 'Главная страница';
+		$this->title .= $category[0]['name'];
+		$this->keywords = $category[0]['name'];
+		$this->description = $category[0]['name'];
 		
 		$this->mainbar = $this->app->view->fetch('indexbar.tpl.php',array(
 												'items'=>$items['items'],
